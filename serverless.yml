@@ -1,0 +1,25 @@
+
+
+service: wishlist-practice
+
+provider:
+  name: aws
+  runtime: python3.7
+  versionFunctions: false
+
+functions:
+  hello:
+    handler: handler.hello
+    events: 
+      - http:
+          path: users/create
+          method: get
+  
+  claimGift:
+    handler: functions/wishlist_handler.claim_gift
+    events: 
+      - http:
+          path: claim/{id}
+          method: post
+
+
