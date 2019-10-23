@@ -2,12 +2,16 @@ import os
 
 class DBCredentials():
 
-    credentials = {
-        "dbname":"wishlist", 
-        "user":"postgres", 
-        "password":"posrtgres", 
-        "host":"localhost", 
-        "port":"5432"
-    }
+    credentials = {}
+
+    def __init__(self):
+
+        self.credentials = {
+            "database":os.environ["dbname"], 
+            "user":os.environ["user"] ,
+            "password":os.environ["password"] ,
+            "host":os.environ["host"] ,
+            "port":os.environ["port"]
+        }
 
 
