@@ -9,6 +9,12 @@ provider:
   name: aws
   runtime: python3.7
   versionFunctions: false
+  environment:
+    database: df0cibdp5db9f
+    user: ${opt:user}
+    password: ${opt:password}
+    host: ec2-174-129-210-249.compute-1.amazonaws.com
+    port: 5432
 
 functions:
   hello:
