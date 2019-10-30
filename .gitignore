@@ -1,25 +1,23 @@
-local/
-.vscode/
-node_modules/
-package-lock.json
-*.code-workspace
-
 #MyIgnores
 .pydevproject
 .project
 .settings
 .serverless
+package-lock.json
 tests/.cache
 tests/__pycache__
 *.pyc
 venv
 .env/
-.wenv/
 .lenv/
 *.zip
-.pytest_cache/
+.vscode/
+.idea
+.pytest_cache
+local/
+node_modules/
+legacy/collections*
 Pipfile.lock
-
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -46,6 +44,7 @@ var/
 .installed.cfg
 *.egg
 
+
 # PyInstaller
 #  Usually these files are written by a python script from a template
 #  before PyInstaller builds the exe, so as to inject date/other infos into it.
@@ -55,3 +54,33 @@ var/
 # Installer logs
 pip-log.txt
 pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*,cover
+.hypothesis/
+
+# Translations
+*.mo
+*.pot
+
+# Django stuff:
+*.log
+
+# Sphinx documentation
+docs/_build/
+
+# PyBuilder
+target/
+
+# Vendored
+vendored/
+
+# Coverage
+coverage*
