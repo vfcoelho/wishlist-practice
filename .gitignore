@@ -12,6 +12,7 @@ venv
 .lenv/
 *.zip
 .vscode/
+.vscode.old/
 .idea
 .pytest_cache
 local/
