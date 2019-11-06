@@ -30,5 +30,12 @@ functions:
       - http:
           path: claim/{id}
           method: post
+  
+  listGifts:
+    handler: functions/wishlist_handler.list_gifts
+    events:
+      - http:
+          path: list
+          method: get
 
 

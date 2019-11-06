@@ -9,6 +9,35 @@ logging.basicConfig()
 log = logging.getLogger()
 log.setLevel(logging.INFO)
 
+def list_gifts(event, context):
+    log.info(json.dumps(event))
+
+    credentials = DBCredentials()
+
+    connection = psycopg2.connect(**credentials.credentials)
+
+    cursor = connection.cursor()
+    cursor.execute("select * from items")
+
+    columns = (
+        'id', 'name', 'reserved'
+    )
+
+    gifts = []
+
+    for row in cursor.fetchall():
+        gifts.append(dict(zip(columns, row)))
+
+    giftsJson = json.dumps(gifts, indent=2)
+
+    cursor.close()
+    connection.commit()
+    connection.close()
+
+    response = {"statusCode": 200, "body": giftsJson}
+
+    return response
+
 def claim_gift(event,context):
     log.info(json.dumps(event))
     item_id = event['pathParameters']['id']
