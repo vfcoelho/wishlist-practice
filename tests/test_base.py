@@ -1,5 +1,5 @@
 import os
-from functions.wishlist_handler import claim_gift
+from functions.wishlist_handler import claim_gift, list_gifts
 
 
 class TestBase(object):
@@ -14,8 +14,13 @@ class TestBase(object):
 
     def test_base(self):
     
-
         event = {'pathParameters':{"id":1}}
         # event = {'pathParameters':{"id":1},'requestContext':{'stage':'local'}}
 
         claim_gift(event,None)
+
+    def test_list(self):
+    
+        result = list_gifts({},None)
+
+        print(result)
