@@ -50,3 +50,32 @@ create table item(
 );
 
 drop table items;
+
+insert into "user" (email,"name") values ('test@test.com','Coelho dos Testes');
+
+insert into "user" (email,"name") values ('test2@test.com','Tartaruga dos Testes');
+insert into "user" (email,"name") values ('cavalo@test.com','Cavalo dos Testes');
+insert into "user" (email,"name") values ('cachoorro@test.com','Cachorro dos Testes');
+
+insert into list (list_name, user_id) values ('Segunda lista',2);
+
+insert into guest_list (user_id,list_id) values (2,1);
+insert into guest_list (user_id,list_id) values (3,1);
+insert into guest_list (user_id,list_id) values (3,2);
+insert into guest_list (user_id,list_id) values (4,2);
+
+select * from "user"
+
+select * from list
+
+select * from guest_list
+
+select * from list as l join guest_list as g on l.id = g.list_id 
+
+select 
+	l.id, 
+	l.list_name 
+from list as l 
+join guest_list as g on l.id = g.list_id 
+where 
+	g.user_id = 2
