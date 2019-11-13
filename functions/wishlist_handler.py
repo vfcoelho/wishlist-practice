@@ -26,9 +26,15 @@ def list_gifts(event, context):
     gifts = []
 
     for row in cursor.fetchall():
-        gifts.append(dict(zip(columns, row)))
+        gift = {
+            'id': row[0], 
+            'name': row[1], 
+            'reserved': row[2]
+        }
 
-    giftsJson = json.dumps(gifts, indent=2)
+        gifts.append(gift)
+
+    giftsJson = json.dumps(gifts)
 
     cursor.close()
     connection.commit()
