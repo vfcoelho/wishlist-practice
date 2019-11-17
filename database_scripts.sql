@@ -1,22 +1,24 @@
-create database wishlist;
+-- create database wishlist;
 
-drop table items;
+-- drop table items;
 
-create table items(
-	id serial primary key,
-	name varchar(250) not null,
-	reserved boolean default false
-);
+-- create table items(
+-- 	id serial primary key,
+-- 	name varchar(250) not null,
+-- 	reserved boolean default false
+-- );
 
-insert into items ("name") values 
-('Fralda'),
-('Carrinho'),
-('Roupas'),
-('Brinquedo');
+-- insert into items ("name") values 
+-- ('Fralda'),
+-- ('Carrinho'),
+-- ('Roupas'),
+-- ('Brinquedo');
 
-select * from items
+-- select * from items
 
---#########################################
+-- drop table items;
+
+--#########################################;
 
 
 create table "user"(
@@ -32,7 +34,7 @@ create table list(
     list_name varchar(256)
 );
 
-create table gest_list(
+create table guest_list(
 	id serial primary key,
 	user_id int
 		references "user" on delete restrict,
@@ -46,23 +48,24 @@ create table item(
 		references "user" on delete restrict,
     list_id int
 		references list on delete restrict,
-	name varchar(256)
+	item_name varchar(256)
 );
 
-drop table items;
 
 insert into "user" (email,"name") values ('test@test.com','Coelho dos Testes');
 
 insert into "user" (email,"name") values ('test2@test.com','Tartaruga dos Testes');
 insert into "user" (email,"name") values ('cavalo@test.com','Cavalo dos Testes');
-insert into "user" (email,"name") values ('cachoorro@test.com','Cachorro dos Testes');
+-- insert into "user" (email,"name") values ('cachoorro@test.com','Cachorro dos Testes');
 
 insert into list (list_name, user_id) values ('Segunda lista',2);
 
-insert into guest_list (user_id,list_id) values (2,1);
-insert into guest_list (user_id,list_id) values (3,1);
-insert into guest_list (user_id,list_id) values (3,2);
-insert into guest_list (user_id,list_id) values (4,2);
+insert into guest_list (user_id,list_id) values (1,1);
+-- insert into guest_list (user_id,list_id) values (3,1);
+-- insert into guest_list (user_id,list_id) values (3,2);
+-- insert into guest_list (user_id,list_id) values (4,2);
+
+insert into item (list_id,item_name) values (1,'Jogo de Copos');
 
 select * from "user"
 
