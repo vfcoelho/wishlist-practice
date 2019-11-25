@@ -84,14 +84,14 @@ def add_guest(event,context):
     user_id = event['pathParameters']['user_id']
     list_id = event['pathParameters']['list_id']
     body = json.loads(event['body'])
-    usert_id = body['usert_id']
+    user_id = body['user_id']
     
     credentials = DBCredentials()
 
     conn = psycopg2.connect(**credentials.credentials)
     cur = conn.cursor()
 
-    cur.execute('insert into guest_list (list_id,user_id) values (%s,%s)',(list_id,usert_id,))
+    cur.execute('insert into guest_list (list_id,user_id) values (%s,%s)',(list_id,user_id,))
 
     cur.close()
     conn.commit()

@@ -17,25 +17,38 @@ provider:
     port: 5432
 
 functions:
-  hello:
-    handler: handler.hello
+
+  listLists:
+    handler: functions/list_handler.list_lists
     events: 
       - http:
-          path: users/create
+          path: user/{user_id}/lists
           method: get
   
-  claimGift:
-    handler: functions/wishlist_handler.claim_gift
+  addList:
+    handler: functions/list_handler.put_list
     events: 
       - http:
-          path: claim/{id}
+          path: user/{user_id}/list
           method: post
-  
-  listGifts:
-    handler: functions/wishlist_handler.list_gifts
-    events:
+
+  updateList:
+    handler: functions/list_handler.put_list
+    events: 
       - http:
-          path: list
-          method: get
+          path: user/{user_id}/list/{list_id}
+          method: put
 
+  addGuest:
+    handler: functions/list_handler.put_list
+    events: 
+      - http:
+          path: user/{user_id}/list/{list_id}
+          method: post
 
+  removeGuest:
+    handler: functions/list_handler.delete_guest
+    events: 
+      - http:
+          path: user/{user_id}/list/{list_id}
+          method: delete
