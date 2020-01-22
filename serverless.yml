@@ -52,3 +52,28 @@ functions:
       - http:
           path: user/{user_id}/list/{list_id}
           method: delete
+  
+  addItem:
+    handler: functions/item_handler.add_item
+    events:
+      - http:
+          path: user/{user_id}/list/{list_id}
+          method: post
+  deleteItem:
+    handler: functions/item_handler.delete_item
+    events:
+      - http:
+          path: user/{user_id}/list/{list_id}/item/{item_id}
+          method: delete
+  claimItem:
+    handler: functions/item_handler.claim_item
+    events:
+      - http:
+          path: user/{user_id}/list/{list_id}/item/{item_id}/claim
+          method: post
+  releaseItem:
+    handler: functions/item_handler.release_item
+    events:
+      - http:
+          path: user/{user_id}/list/{list_id}/item/{item_id}/release
+          method: delete
