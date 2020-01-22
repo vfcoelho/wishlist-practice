@@ -3,6 +3,8 @@ import json
 import psycopg2
 
 from utils.db_credentials import DBCredentials
+from lib.data_models.db_connector import DatabaseConnFactory
+from lib.data_models.db_model import List, GuestList
 
 import logging
 logging.basicConfig()
@@ -15,30 +17,29 @@ def list_lists(event,context):
     is_host = event['queryStringParameters']['is_host']
 
     credentials = DBCredentials()
+    session = DatabaseConnFactory.get_session(**credentials.credentials)
 
-    conn = psycopg2.connect(**credentials.credentials)
-    cur = conn.cursor()
-
+    list_list = []
     if is_host:
-        cur.execute("select id,list_name from list where user_id = %s",(user_id,))
+        # cur.execute("select id,list_name from list where user_id = %s",(user_id,))
+        list_list = session.query(List).filter(List.user_id == user_id).all()
     else:
-        cur.execute('select l.id,l.list_name,gl.id from list as l join guest_list as gl on l.id = gl.list_id where gl.user_id = %s',(user_id,))
+        # cur.execute('select l.id,l.list_name,gl.id from list as l join guest_list as gl on l.id = gl.list_id where gl.user_id = %s',(user_id,))
+        list_list = session.query(List).join(GuestList, GuestList.list_id == List.id).filter(GuestList.user_id == user_id).all()
 
     results = []
-    for row in cur.fetchall():
+    for list_row in list_list:
 
         result = {
-            "id":row[0],
-            "name":row[1]
+            "id":list_row.id,
+            "name":list_row.list_name
         }
-        if len(row)==3:
-            result["guest_id"] = row[2]
+        # if len(row)==3:
+        #     result["guest_id"] = row[2]
 
         results.append(result)
 
-    cur.close()
-    conn.commit()
-    conn.close()
+    session.close()
 
     response = {
         "statusCode": 200,

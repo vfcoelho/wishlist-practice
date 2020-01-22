@@ -5,9 +5,11 @@ verify_ssl = true
 
 [dev-packages]
 pytest = "*"
+pylint = "*"
 
 [packages]
 psycopg2-binary = "*"
+sqlalchemy = "*"
 
 [requires]
-python_version = "3.6"
+python_version = "3.7"
