@@ -11,13 +11,34 @@ logging.basicConfig()
 log = logging.getLogger()
 log.setLevel(logging.INFO)
 
-def list_lists(event,context):
+
+class Database(object):
+
+    def __call__(self, f):
+        
+        def run(*args, **kwargs):
+            
+            credentials = DBCredentials()
+            session = DatabaseConnFactory.get_session(**credentials.credentials)
+            
+            try:
+                return f(session,*args,**kwargs)
+            except Exception as e:
+                log.exception(str(e))
+            finally:
+                session.close()
+                
+        return run
+
+
+@Database()
+def list_lists(session,event,context):
     log.info(json.dumps(event))
     user_id = event['pathParameters']['user_id']
     is_host = event['queryStringParameters']['is_host']
 
-    credentials = DBCredentials()
-    session = DatabaseConnFactory.get_session(**credentials.credentials)
+    # credentials = DBCredentials()
+    # session = DatabaseConnFactory.get_session(**credentials.credentials)
 
     list_list = []
     if is_host:
@@ -39,7 +60,7 @@ def list_lists(event,context):
 
         results.append(result)
 
-    session.close()
+    # session.close()
 
     response = {
         "statusCode": 200,
