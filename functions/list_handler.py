@@ -2,8 +2,10 @@ import json
 
 import psycopg2
 
+from utils.decorators.lambda_decorator import Lambda
+from utils.decorators.network_decorator import Network
 from utils.db_credentials import DBCredentials
-from lib.data_models.db_connector import DatabaseConnFactory
+from utils.decorators.database_decorator import Database
 from lib.data_models.db_model import List, GuestList
 
 import logging
@@ -11,41 +13,14 @@ logging.basicConfig()
 log = logging.getLogger()
 log.setLevel(logging.INFO)
 
-
-class Database(object):
-
-    def __call__(self, f):
-        
-        def run(*args, **kwargs):
-            
-            credentials = DBCredentials()
-            session = DatabaseConnFactory.get_session(**credentials.credentials)
-            
-            try:
-                return f(session,*args,**kwargs)
-            except Exception as e:
-                log.exception(str(e))
-            finally:
-                session.close()
-                
-        return run
-
-
+@Lambda()
+@Network()
 @Database()
-def list_lists(session,event,context):
-    log.info(json.dumps(event))
-    user_id = event['pathParameters']['user_id']
-    is_host = event['queryStringParameters']['is_host']
-
-    # credentials = DBCredentials()
-    # session = DatabaseConnFactory.get_session(**credentials.credentials)
-
+def list_lists(user_id,is_host,session,**kwargs):
     list_list = []
     if is_host:
-        # cur.execute("select id,list_name from list where user_id = %s",(user_id,))
         list_list = session.query(List).filter(List.user_id == user_id).all()
     else:
-        # cur.execute('select l.id,l.list_name,gl.id from list as l join guest_list as gl on l.id = gl.list_id where gl.user_id = %s',(user_id,))
         list_list = session.query(List).join(GuestList, GuestList.list_id == List.id).filter(GuestList.user_id == user_id).all()
 
     results = []
@@ -55,18 +30,12 @@ def list_lists(session,event,context):
             "id":list_row.id,
             "name":list_row.list_name
         }
-        # if len(row)==3:
-        #     result["guest_id"] = row[2]
+        if not is_host:
+            result['guest_id'] = [x.id for x in list_row.guest_list_list if x.user_id == user_id][0]
 
         results.append(result)
 
-    # session.close()
-
-    response = {
-        "statusCode": 200,
-        "body": json.dumps(results)
-    }
-    return response
+    return results
 
 def put_list(event,context):
     log.info(json.dumps(event))
