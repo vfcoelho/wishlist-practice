@@ -15,8 +15,8 @@ class Network(object):
             }
 
             try:
-                path_patameters = event['pathParameters']
-                qs_patameters = event['queryStringParameters']
+                path_patameters = event.get('pathParameters',{})
+                qs_patameters = event.get('queryStringParameters',{})
                 body = json.loads(event.get('body','{}'))
 
                 results = f(**path_patameters,**qs_patameters,body=body,**kwargs)

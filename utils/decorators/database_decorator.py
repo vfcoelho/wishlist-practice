@@ -14,12 +14,16 @@ class Database(object):
             
             credentials = DBCredentials()
             session = DatabaseConnFactory.get_session(**credentials.credentials)
-            
+            result = None
+
             try:
-                return f(session=session,**kwargs)
+                result = f(session=session,**kwargs)
+                session.commit()
             except Exception as e:
                 log.exception(str(e))
+                raise
             finally:
                 session.close()
+                return result
                 
         return run

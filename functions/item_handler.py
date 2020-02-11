@@ -1,102 +1,50 @@
-import json
 
-import psycopg2
+from utils.decorators.lambda_decorator import Lambda
+from utils.decorators.network_decorator import Network
+from utils.decorators.database_decorator import Database
 
-from utils.db_credentials import DBCredentials
+from lib.data_models.db_model import Item
 
 import logging
 logging.basicConfig()
 log = logging.getLogger()
 log.setLevel(logging.INFO)
 
-def add_item(event,context):
-    log.info(json.dumps(event))
-    user_id = event['pathParameters']['user_id']
-    list_id = event['pathParameters']['list_id']
-    body = json.loads(event['body'])
+@Lambda()
+@Network()
+@Database()
+def add_item(list_id,body,session,**kwargs):
     item_name = body['item_name']
     
-    credentials = DBCredentials()
+    item = Item()
+    item.list_id = list_id
+    item.item_name = item_name
 
-    conn = psycopg2.connect(**credentials.credentials)
-    cur = conn.cursor()
+    session.add(item)
 
-    cur.execute('insert into item (list_id,item_name) values (%s,%s)',(list_id,item_name,))
-
-    cur.close()
-    conn.commit()
-    conn.close()
-
-    response = {
-        "statusCode": 200
-    }
-    return response
-
-def delete_item(event,context):
-    log.info(json.dumps(event))
-    user_id = event['pathParameters']['user_id']
-    list_id = event['pathParameters']['list_id']
-    item_id = event['pathParameters']['item_id']
+@Lambda()
+@Network()
+@Database()
+def delete_item(item_id,session,**kwargs):
     
-    credentials = DBCredentials()
+    session.query(Item).filter(Item.id == item_id).delete()
 
-    conn = psycopg2.connect(**credentials.credentials)
-    cur = conn.cursor()
-
-    cur.execute('delete from item where id = %s',(item_id,))
-
-    cur.close()
-    conn.commit()
-    conn.close()
-
-    response = {
-        "statusCode": 200
-    }
-    return response
-
-def claim_item(event,context):
-    log.info(json.dumps(event))
-    user_id = event['pathParameters']['user_id']
-    list_id = event['pathParameters']['list_id']
-    item_id = event['pathParameters']['item_id']
-    body = json.loads(event['body'])
+@Lambda()
+@Network()
+@Database()
+def claim_item(item_id,body,session,**kwargs):
     guest_id = body['guest_id']
 
-    credentials = DBCredentials()
+    item = session.query(Item).filter(Item.id == item_id).one_or_none()
+    item.guest_id = guest_id
+    session.add(item)
 
-    conn = psycopg2.connect(**credentials.credentials)
-    cur = conn.cursor()
-
-    cur.execute('update item set guest_id = %s where id = %s',(guest_id,item_id,))
-
-    cur.close()
-    conn.commit()
-    conn.close()
-
-    response = {
-        "statusCode": 200
-    }
-    return response
-
-def release_item(event,context):
-    log.info(json.dumps(event))
-    user_id = event['pathParameters']['user_id']
-    list_id = event['pathParameters']['list_id']
-    item_id = event['pathParameters']['item_id']
-    item_id = event['pathParameters']['guest_id']
+@Lambda()
+@Network()
+@Database()
+def release_item(item_id,session,**kwargs):
     
-    credentials = DBCredentials()
+    item = session.query(Item).filter(Item.id == item_id).one_or_none()
+    item.guest_id = None
+    session.add(item)
 
-    conn = psycopg2.connect(**credentials.credentials)
-    cur = conn.cursor()
-
-    cur.execute('update item set guest_id = null where id = %s',(item_id,))
-
-    cur.close()
-    conn.commit()
-    conn.close()
-
-    response = {
-        "statusCode": 200
-    }
-    return response

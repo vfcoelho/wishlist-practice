@@ -1,10 +1,6 @@
-import json
-
-import psycopg2
 
 from utils.decorators.lambda_decorator import Lambda
 from utils.decorators.network_decorator import Network
-from utils.db_credentials import DBCredentials
 from utils.decorators.database_decorator import Database
 from lib.data_models.db_model import List, GuestList
 
@@ -37,80 +33,40 @@ def list_lists(user_id,is_host,session,**kwargs):
 
     return results
 
-def put_list(event,context):
-    log.info(json.dumps(event))
-    user_id = event['pathParameters']['user_id']
-    list_id = event['pathParameters'].get('list_id')
-    body = json.loads(event['body'])
+@Lambda()
+@Network()
+@Database()
+def put_list(user_id,body,session,list_id=None,**kwargs):
+    
     list_name = body['list_name']
 
-    credentials = DBCredentials()
+    wish_list = None
+    if list_id:
+        wish_list = session.query(List).filter(List.id == list_id).one_or_none()
+        wish_list.list_name = list_name
+    else:
+        wish_list = List()
+        wish_list.user_id = user_id
+        wish_list.list_name = list_name
 
-    conn = psycopg2.connect(**credentials.credentials)
-    cur = conn.cursor()
+    session.add(wish_list)
 
-    try:
 
-        if list_id:
-            cur.execute("update list set list_name = %s where id = %s",(list_name,list_id,))
-        else:
-            cur.execute("insert into list (list_name,user_id) values (%s,%s)",(list_name,user_id,))
-
-        conn.commit()
-
-        response = {
-            "statusCode": 200
-        }
-        return response
-
-    except Exception as e:
-        conn.rollback()
-        raise
-    finally:
-        cur.close()
-        conn.close()
-
-def add_guest(event,context):
-    log.info(json.dumps(event))
-    user_id = event['pathParameters']['user_id']
-    list_id = event['pathParameters']['list_id']
-    body = json.loads(event['body'])
+@Lambda()
+@Network()
+@Database()
+def add_guest(list_id,body,session,**kwargs):
+    
     user_id = body['user_id']
     
-    credentials = DBCredentials()
+    guest = GuestList()
+    guest.list_id = list_id
+    guest.user_id = user_id
+    session.add(guest)
 
-    conn = psycopg2.connect(**credentials.credentials)
-    cur = conn.cursor()
+@Lambda()
+@Network()
+@Database()
+def delete_guest(guest_id,session,**kwargs):
 
-    cur.execute('insert into guest_list (list_id,user_id) values (%s,%s)',(list_id,user_id,))
-
-    cur.close()
-    conn.commit()
-    conn.close()
-
-    response = {
-        "statusCode": 200
-    }
-    return response
-
-def delete_guest(event,context):
-    log.info(json.dumps(event))
-    user_id = event['pathParameters']['user_id']
-    list_id = event['pathParameters']['list_id']
-    guest_id = event['pathParameters']['guest_id']
-    
-    credentials = DBCredentials()
-
-    conn = psycopg2.connect(**credentials.credentials)
-    cur = conn.cursor()
-
-    cur.execute('delete from guest_list where id = %s',(guest_id,))
-
-    cur.close()
-    conn.commit()
-    conn.close()
-
-    response = {
-        "statusCode": 200
-    }
-    return response
+    session.query(GuestList).filter(GuestList.id == guest_id).delete()

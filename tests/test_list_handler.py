@@ -79,7 +79,7 @@ class TestListHandler(TestBase):
                 "user_id":2,
                 "list_id":1
             },
-            "body":'{"usert_id":3}'
+            "body":'{"user_id":3}'
         }
         
         add_guest(event,None)
