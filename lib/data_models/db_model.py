@@ -50,3 +50,22 @@ class Item(Base):
 
     guest = relationship("GuestList", back_populates="item_list")
     list = relationship("List", back_populates="item_list")
+
+def build_model():
+    # use: https://stackoverflow.com/questions/24622170/using-alembic-api-from-inside-application-code
+    drop_model()
+    import alembic.config
+    alembicArgs = [
+        '-x', 'scope=test',
+        'upgrade', 'head',
+    ]
+    alembic.config.main(argv=alembicArgs)
+
+
+def drop_model():
+    import alembic.config
+    alembicArgs = [
+        '-x', 'scope=test',
+        'downgrade', 'base',
+    ]
+    alembic.config.main(argv=alembicArgs)

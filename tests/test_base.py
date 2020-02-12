@@ -2,63 +2,92 @@ import os,sys
 import psycopg2
 # from functions.wishlist_handler import claim_gift, list_gifts
 from utils.db_credentials import DBCredentials
+from lib.data_models.db_connector import DatabaseConnFactory
+from lib.data_models.db_model import build_model, drop_model
+from alembic import op
+from sqlalchemy import Table, MetaData
+from alembic.migration import MigrationContext
+from alembic.operations import Operations
 
 here = os.path.dirname(os.path.realpath(__file__))
 sys.path.append(os.path.join(here, "."))
 sys.path.append(os.path.join(here, ".."))
 
 class TestBase(object):
-    
-    def drop_all_tables(self):
-        self.cur.execute('SELECT tablename FROM pg_tables WHERE schemaname = current_schema()')
 
-        for row in self.cur.fetchall():
-            self.cur.execute(f'DROP TABLE IF EXISTS "{row[0]}" CASCADE;')
-
-        self.conn.commit()
-
-    def setup(self):
-
+    @classmethod
+    def set_env_vars(self):
         os.environ["dbname"] = 'wishlist'
         os.environ["user"] = 'postgres'
         os.environ["password"] = 'postgres'
         os.environ["host"] = 'localhost'
         os.environ["port"] = '5432'
 
+    def _build_db(self):
+        build_model()
+
+    def _drop_db(self):
+        drop_model()
+
+    def seed(self,db_connection):
+
+        conn = db_connection.engine.connect()
+        ctx = MigrationContext.configure(conn)
+        op = Operations(ctx)
+
+        meta = MetaData(bind=op.get_bind())
+        user = Table('user', meta)
+        op.bulk_insert(user,
+            [
+                {'name':'Coelho dos Testes',
+                        'email':'test@test.com'},
+                {'name':'Tartaruga dos Testes',
+                        'email':'test2@test.com'},
+                {'name':'Cavalo dos Testes',
+                        'email':'cavalo@test.com'}
+            ]
+        )
+
+        list = Table('list', meta)
+        op.bulk_insert(list,
+            [
+                {'name':'Segunda lista',
+                        'user_id':2}
+            ]
+        )
+
+        guest_list = Table('guest_list', meta)
+        op.bulk_insert(guest_list,
+            [
+                {'list_id':1,
+                        'user_id':1}
+            ]
+        )
+
+        item = Table('item', meta)
+        op.bulk_insert(item,
+            [
+                {'list_id':1,
+                        'item_name':'Jogo de Copos'}
+            ]
+        )
+
+    def setup(self):
+
+        TestBase.set_env_vars()
+
         credentials = DBCredentials()
-        self.conn = psycopg2.connect(**credentials.credentials)
-        self.cur = self.conn.cursor()
+        db_connection = DatabaseConnFactory()
+        self.db_connection = db_connection.set_conn_string(**credentials.credentials)\
+                .set_engine()\
+                .set_session()
 
-        self.drop_all_tables()
+        self._build_db()
 
-        with open(f'{here}/../database_scripts.sql','r') as db_scripts_file:
-            db_scripts = db_scripts_file.read().replace('\n',' ').replace('\t','')
-            db_scripts_list = db_scripts.split(';')
-
-            allowed_commands = ['create','insert']
-
-            for script in db_scripts_list:
-                first_word = script.strip().split(' ',1)[0]
-                if first_word not in allowed_commands:
-                    continue
-                self.cur.execute(script)
-                self.conn.commit()
+        self.seed(db_connection)
     
     def teardown(self):
 
-        self.cur.close()
-        self.conn.commit()
-        self.conn.close()
+        self._drop_db()
 
-    # def test_base(self):
-    
-    #     event = {'pathParameters':{"id":1}}
-    #     # event = {'pathParameters':{"id":1},'requestContext':{'stage':'local'}}
-
-    #     claim_gift(event,None)
-
-    # def test_list(self):
-    
-    #     result = list_gifts({},None)
-
-    #     print(result)
+        self.db_connection.session.close()
