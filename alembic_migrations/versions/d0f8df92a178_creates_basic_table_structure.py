@@ -41,7 +41,7 @@ def upgrade():
     )
     op.create_table('item',
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('guest_id', sa.Integer(), nullable=False),
+    sa.Column('guest_id', sa.Integer(), nullable=True),
     sa.Column('list_id', sa.Integer(), nullable=False),
     sa.Column('item_name', sa.String(length=256), nullable=False),
     sa.ForeignKeyConstraint(['guest_id'], ['guest_list.id'], ondelete='RESTRICT'),

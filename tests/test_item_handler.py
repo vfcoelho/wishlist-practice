@@ -1,6 +1,7 @@
 import os
 from functions.item_handler import add_item,delete_item,release_item,claim_item
 from tests.test_base import TestBase
+from lib.data_models.db_model import Item
 
 class TestItemHandler(TestBase):
     
@@ -18,10 +19,9 @@ class TestItemHandler(TestBase):
 
         result = add_item(event,None)
 
-        self.cur.execute('select item_name from item')
-        rows = self.cur.fetchall()
+        rows = self.db_connection.session.query(Item).all()
         assert len(rows) == 2
-        assert rows[1][0] == 'Panelas'
+        assert rows[1].item_name == 'Panelas'
 
     def test_delete_item(self):
         event = {

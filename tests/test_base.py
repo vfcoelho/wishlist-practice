@@ -36,6 +36,7 @@ class TestBase(object):
         op = Operations(ctx)
 
         meta = MetaData(bind=op.get_bind())
+        meta.reflect(only=('user','list','guest_list','item'))
         user = Table('user', meta)
         op.bulk_insert(user,
             [
@@ -47,11 +48,11 @@ class TestBase(object):
                         'email':'cavalo@test.com'}
             ]
         )
-
+        
         list = Table('list', meta)
         op.bulk_insert(list,
             [
-                {'name':'Segunda lista',
+                {'list_name':'Segunda lista',
                         'user_id':2}
             ]
         )
@@ -88,6 +89,6 @@ class TestBase(object):
     
     def teardown(self):
 
-        self._drop_db()
 
         self.db_connection.session.close()
+        self._drop_db()

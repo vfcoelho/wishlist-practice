@@ -13,7 +13,8 @@ class Database(object):
         def run(**kwargs):
             
             credentials = DBCredentials()
-            session = DatabaseConnFactory.get_session(**credentials.credentials)
+            db_connector = DatabaseConnFactory()
+            session = db_connector.set_conn_string(**credentials.credentials).set_session().session
             result = None
 
             try:

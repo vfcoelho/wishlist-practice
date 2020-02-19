@@ -44,7 +44,7 @@ class Item(Base):
     __tablename__='item'
 
     id = Column(Integer, primary_key=True, nullable=False)
-    guest_id = Column(Integer,ForeignKey('guest_list.id', ondelete="RESTRICT"), nullable=False)
+    guest_id = Column(Integer,ForeignKey('guest_list.id', ondelete="RESTRICT"), nullable=True)
     list_id = Column(Integer,ForeignKey('list.id', ondelete="RESTRICT"), nullable=False)
     item_name = Column(String(256),nullable=False)
 
